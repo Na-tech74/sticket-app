@@ -1,92 +1,532 @@
-/* Tag màu danh mục */
-.tag-cat-blue { background: #d4e6f1; color: #1a5276; }
-.tag-cat-red { background: #fadbd8; color: #922b21; }
-.tag-cat-green { background: #d5f5e3; color: #145a32; }
-.tag-cat-orange { background: #fdebd0; color: #935e38; }
-.tag-cat-purple { background: #e8daef; color: #6c3483; }
+/* ============================================================
+   Sổ Tay Xử Lý Sự Cố IT — theme "Signal"
+   Ý tưởng: bảng điều khiển vận hành IT — rõ ràng, đáng tin,
+   có nhịp điệu của các đèn trạng thái (status light) thật.
+   ============================================================ */
 
-/* Tag màu trạng thái */
-.tag-st-green { background: #d5f5e3; color: #145a32; }
-.tag-st-orange { background: #fdebd0; color: #935e38; }
-.tag-st-red { background: #fadbd8; color: #922b21; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-/* Top issues badge */
-.issue-badge {
-    background: #eaf2f8;
-    padding: 6px 16px;
-    border-radius: 20px;
+:root {
+    /* Nền & bề mặt */
+    --bg: #F3F5F8;
+    --surface: #FFFFFF;
+    --surface-alt: #EEF1F5;
+    --border: #E1E6EC;
+    --border-strong: #C9D1DA;
+
+    /* Chữ */
+    --ink: #16212E;
+    --ink-muted: #64707D;
+    --ink-faint: #93A0AC;
+
+    /* Màu tín hiệu (accent chính = "teal tín hiệu") */
+    --signal: #0E7C86;
+    --signal-dark: #0A5E66;
+    --signal-soft: #E1F2F1;
+
+    --danger: #D3453F;
+    --danger-soft: #FBE7E5;
+    --warning: #C6791B;
+    --warning-soft: #FBEcD9;
+    --success: #1E8A5A;
+    --success-soft: #E1F5EA;
+    --info: #2E5FA3;
+    --info-soft: #E4EBF7;
+    --violet: #7B5EA7;
+    --violet-soft: #EFE9F6;
+
+    --radius: 10px;
+    --radius-sm: 7px;
+    --shadow-card: 0 1px 2px rgba(22, 33, 46, 0.04), 0 1px 12px rgba(22, 33, 46, 0.045);
+    --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-mono: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-ui);
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Điểm nhấn "signal": thanh 3px trên các card chính, gợi cảm giác
+   panel vận hành hệ thống thay vì thẻ Bootstrap mặc định */
+.card {
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    box-shadow: var(--shadow-card) !important;
+    background: var(--surface);
+    position: relative;
+    overflow: hidden;
+}
+
+.card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--signal), var(--signal) 40%, transparent 40%, transparent 60%, var(--signal) 60%);
+    opacity: 0.9;
+}
+
+#loginPage .card::before {
+    background: var(--signal);
+}
+
+.card-title {
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: var(--ink);
+}
+
+.card-title i {
+    margin-right: 2px;
+}
+
+/* ===== Header ===== */
+h1.h3 {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+}
+
+h1.h3 i {
+    color: var(--signal);
+}
+
+.text-muted {
+    color: var(--ink-muted) !important;
+}
+
+/* ===== Form fields ===== */
+input.form-control,
+select.form-select,
+textarea.form-control {
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    color: var(--ink);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+input.form-control:focus,
+select.form-select:focus,
+textarea.form-control:focus {
+    border-color: var(--signal);
+    box-shadow: 0 0 0 3px var(--signal-soft);
+}
+
+input.form-control::placeholder,
+textarea.form-control::placeholder {
+    color: var(--ink-faint);
+}
+
+/* ===== Nút đăng nhập Google ===== */
+#btnGoogleLogin {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+#btnGoogleLogin image,
+#btnGoogleLogin img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    vertical-align: middle;
+}
+
+/* ===== Buttons ===== */
+.btn {
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.01em;
+    transition: transform .1s ease, box-shadow .15s ease, background-color .15s ease;
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.btn-primary {
+    background: var(--signal);
+    border-color: var(--signal);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background: var(--signal-dark);
+    border-color: var(--signal-dark);
+}
+
+.btn-success {
+    background: var(--success);
+    border-color: var(--success);
+}
+
+.btn-success:hover {
+    filter: brightness(0.92);
+}
+
+.btn-danger {
+    background: var(--danger);
+    border-color: var(--danger);
+}
+
+.btn-danger:hover {
+    filter: brightness(0.92);
+}
+
+.btn-warning {
+    background: var(--warning);
+    border-color: var(--warning);
+    color: #fff;
+}
+
+.btn-warning:hover {
+    filter: brightness(0.94);
+    color: #fff;
+}
+
+.btn-outline-secondary,
+.btn-outline-dark {
+    border-color: var(--border-strong);
+    color: var(--ink);
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-dark:hover {
+    background: var(--surface-alt);
+    color: var(--ink);
+    border-color: var(--border-strong);
+}
+
+.btn-secondary {
+    background: var(--surface-alt);
+    border-color: var(--border-strong);
+    color: var(--ink);
+}
+
+.btn-secondary:hover {
+    background: var(--border);
+    color: var(--ink);
+}
+
+/* ===== Table ===== */
+.table-dark {
+    --bs-table-bg: var(--ink);
+    background: var(--ink) !important;
+}
+
+.table thead th {
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+.table tbody tr {
+    transition: background-color .12s ease;
+}
+
+.table-hover tbody tr:hover {
+    background: var(--signal-soft);
+}
+
+.table td {
+    vertical-align: middle;
+    font-size: 14px;
+    border-color: var(--border);
+}
+
+.table td:first-child {
+    font-family: var(--font-mono);
+    color: var(--ink-faint);
     font-size: 13px;
 }
-.issue-badge .count {
-    background: #2980b9;
-    color: #fff;
-    border-radius: 50%;
-    padding: 1px 10px;
-    margin-left: 6px;
+
+/* ===== Tag danh mục ===== */
+.tag-cat-blue,
+.tag-cat-red,
+.tag-cat-green,
+.tag-cat-orange,
+.tag-cat-purple,
+.tag-st-green,
+.tag-st-orange,
+.tag-st-red {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 999px;
     font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
 }
 
-/* Fix text trong bảng */
+.tag-cat-blue {
+    background: var(--info-soft);
+    color: var(--info);
+}
+
+.tag-cat-red {
+    background: var(--danger-soft);
+    color: var(--danger);
+}
+
+.tag-cat-green {
+    background: var(--success-soft);
+    color: var(--success);
+}
+
+.tag-cat-orange {
+    background: var(--warning-soft);
+    color: var(--warning);
+}
+
+.tag-cat-purple {
+    background: var(--violet-soft);
+    color: var(--violet);
+}
+
+/* Trạng thái: chấm tròn nhỏ trước chữ, như đèn tín hiệu server */
+.tag-st-green,
+.tag-st-orange,
+.tag-st-red {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-family: var(--font-mono);
+}
+
+.tag-st-green {
+    background: var(--success-soft);
+    color: var(--success);
+}
+
+.tag-st-orange {
+    background: var(--warning-soft);
+    color: var(--warning);
+}
+
+.tag-st-red {
+    background: var(--danger-soft);
+    color: var(--danger);
+}
+
+.tag-st-green::before,
+.tag-st-orange::before,
+.tag-st-red::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 0 3px currentColor22;
+}
+
+/* ===== Top issues badge ===== */
+.issue-badge {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.issue-badge .count {
+    background: var(--signal);
+    color: #fff;
+    border-radius: 50%;
+    padding: 1px 9px;
+    margin-left: 7px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 600;
+}
+
+/* ===== Fix text (mã lệnh / cách sửa) ===== */
 .fix-text {
     max-width: 250px;
     font-size: 13px;
     word-break: break-word;
+    color: var(--ink-muted);
 }
+
 .fix-text code {
-    background: #ecf0f1;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    color: var(--signal-dark);
     padding: 1px 6px;
     border-radius: 4px;
+    font-family: var(--font-mono);
     font-size: 12px;
 }
 
-/* Modal styling */
-.modal-content { border-radius: 12px; overflow: hidden; }
-.modal-header { border-bottom: none; }
-.modal-footer { border-top: none; }
-#confirmModal .modal-body,
-#alertModal .modal-body { padding-top: 2rem; padding-bottom: 1rem; }
-#confirmModal .modal-body h5,
-#alertModal .modal-body h5 { font-weight: 700; }
-
-/* Mobile cards */
-.mobile-title { font-size: 14px; }
-.mobile-fix { line-height: 1.4; word-break: break-word; }
-#mobileCards .card { border-radius: 10px; }
-
-/* Form fields đều nhau */
-input.form-control,
-select.form-select {
-    height: 38px;
+/* ===== Thống kê / stats ===== */
+#stats .card,
+#stats > div {
+    border-radius: var(--radius-sm);
 }
 
+/* ===== Modal ===== */
+.modal-content {
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 20px 50px rgba(22, 33, 46, 0.18);
+}
+
+.modal-header {
+    border-bottom: none;
+}
+
+.modal-header.bg-warning {
+    background: var(--warning) !important;
+}
+
+.modal-footer {
+    border-top: none;
+}
+
+#confirmModal .modal-body,
+#alertModal .modal-body {
+    padding-top: 2rem;
+    padding-bottom: 1rem;
+}
+
+#confirmModal .modal-body h5,
+#alertModal .modal-body h5 {
+    font-weight: 700;
+    color: var(--ink);
+}
+
+/* ===== Mobile cards ===== */
+.mobile-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.mobile-fix {
+    line-height: 1.5;
+    word-break: break-word;
+    color: var(--ink-muted);
+}
+
+#mobileCards .card {
+    border-radius: var(--radius);
+}
+
+/* ===== Dropdown user menu ===== */
+.dropdown-menu {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-card);
+}
+
+.dropdown-item:hover {
+    background: var(--signal-soft);
+    color: var(--signal-dark);
+}
+
+/* ===== Loading spinner ===== */
+.spinner-border.text-primary {
+    color: var(--signal) !important;
+    border-right-color: transparent !important;
+}
+
+/* ===== Empty state ===== */
+.fa-inbox {
+    color: var(--ink-faint);
+}
+
+/* ===== Footer ===== */
+.text-center.text-muted.small.py-3 {
+    color: var(--ink-faint) !important;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+}
+
+/* ===== Focus visibility (a11y) ===== */
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 2px;
+}
+
+/* ===== Responsive ===== */
 @media (max-width: 700px) {
-    .fix-text { max-width: 120px; }
+    .fix-text {
+        max-width: 120px;
+    }
 
     input.form-control,
     select.form-select {
         font-size: 16px;
-        height: 36px;
+        height: 40px;
     }
 
-    .form-select option { font-size: 16px; }
+    .form-select option {
+        font-size: 16px;
+    }
 
     textarea.form-control {
         font-size: 16px;
-        padding: 6px 8px;
+        padding: 8px 10px;
         height: auto;
     }
 
-    .btn { font-size: 13px; padding: 6px 14px; }
-    .card-title { font-size: 14px; }
-    h1 { font-size: 20px; }
+    .btn {
+        font-size: 13px;
+        padding: 7px 14px;
+    }
+
+    .card-title {
+        font-size: 14px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
     #issueDate {
         text-align: left;
         padding-left: 10px;
     }
 
-    .modal-dialog { margin: 1rem; margin-top: -60px; }
-    .modal-body { padding: 1.25rem; }
-    .modal-body h5 { font-size: 16px; }
-    .modal-body p { font-size: 13px; }
-    .modal-body i[style*="font-size:48px"] { font-size: 36px !important; }
+    .modal-dialog {
+        margin: 1rem;
+        margin-top: -60px;
+    }
+
+    .modal-body {
+        padding: 1.25rem;
+    }
+
+    .modal-body h5 {
+        font-size: 16px;
+    }
+
+    .modal-body p {
+        font-size: 13px;
+    }
+
+    .modal-body i[style*="font-size:48px"] {
+        font-size: 36px !important;
+    }
 }
