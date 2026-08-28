@@ -1,0 +1,92 @@
+/* Tag màu danh mục */
+.tag-cat-blue { background: #d4e6f1; color: #1a5276; }
+.tag-cat-red { background: #fadbd8; color: #922b21; }
+.tag-cat-green { background: #d5f5e3; color: #145a32; }
+.tag-cat-orange { background: #fdebd0; color: #935e38; }
+.tag-cat-purple { background: #e8daef; color: #6c3483; }
+
+/* Tag màu trạng thái */
+.tag-st-green { background: #d5f5e3; color: #145a32; }
+.tag-st-orange { background: #fdebd0; color: #935e38; }
+.tag-st-red { background: #fadbd8; color: #922b21; }
+
+/* Top issues badge */
+.issue-badge {
+    background: #eaf2f8;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+}
+.issue-badge .count {
+    background: #2980b9;
+    color: #fff;
+    border-radius: 50%;
+    padding: 1px 10px;
+    margin-left: 6px;
+    font-size: 12px;
+}
+
+/* Fix text trong bảng */
+.fix-text {
+    max-width: 250px;
+    font-size: 13px;
+    word-break: break-word;
+}
+.fix-text code {
+    background: #ecf0f1;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+/* Modal styling */
+.modal-content { border-radius: 12px; overflow: hidden; }
+.modal-header { border-bottom: none; }
+.modal-footer { border-top: none; }
+#confirmModal .modal-body,
+#alertModal .modal-body { padding-top: 2rem; padding-bottom: 1rem; }
+#confirmModal .modal-body h5,
+#alertModal .modal-body h5 { font-weight: 700; }
+
+/* Mobile cards */
+.mobile-title { font-size: 14px; }
+.mobile-fix { line-height: 1.4; word-break: break-word; }
+#mobileCards .card { border-radius: 10px; }
+
+/* Form fields đều nhau */
+input.form-control,
+select.form-select {
+    height: 38px;
+}
+
+@media (max-width: 700px) {
+    .fix-text { max-width: 120px; }
+
+    input.form-control,
+    select.form-select {
+        font-size: 16px;
+        height: 36px;
+    }
+
+    .form-select option { font-size: 16px; }
+
+    textarea.form-control {
+        font-size: 16px;
+        padding: 6px 8px;
+        height: auto;
+    }
+
+    .btn { font-size: 13px; padding: 6px 14px; }
+    .card-title { font-size: 14px; }
+    h1 { font-size: 20px; }
+    #issueDate {
+        text-align: left;
+        padding-left: 10px;
+    }
+
+    .modal-dialog { margin: 1rem; margin-top: -60px; }
+    .modal-body { padding: 1.25rem; }
+    .modal-body h5 { font-size: 16px; }
+    .modal-body p { font-size: 13px; }
+    .modal-body i[style*="font-size:48px"] { font-size: 36px !important; }
+}

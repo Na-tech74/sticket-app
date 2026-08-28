@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IT Support – Sổ tay sự cố</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-light">
+    <div class="container py-4" style="max-width:1200px;">
+        <!-- HEADER -->
+        <div class="text-center mb-4">
+            <h1 class="h3 fw-bold text-dark mb-1"><i class="fas fa-headset text-primary"></i> Sổ Tay Xử Lý Sự Cố IT</h1>
+            <p class="text-muted small mb-0">Sổ tay xử lý sự cố - Ghi chép, Tra cứu, Thống kê</p>
+        </div>
+
+        <!-- FORM NHẬP LỖI -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title mb-3"><i class="fas fa-plus-circle text-primary"></i> <strong>Ghi nhận sự cố mới</strong> </h5>
+                <div class="row g-2 mb-2">
+                    <div class="col-md-6">
+                        <input type="text" id="issueTitle" class="form-control"
+                            placeholder="Tiêu đề lỗi (VD: Mất wifi máy A)">
+                    </div>
+                    <div class="col-md-6">
+                        <input type="date" id="issueDate" class="form-control">
+                    </div>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-md-6">
+                        <select id="issueCategory" class="form-select">
+                            <option value="Mạng"><i class="fas fa-globe"></i> Mạng</option>
+                            <option value="Phần cứng"><i class="fas fa-desktop"></i> Phần cứng</option>
+                            <option value="Phần mềm"><i class="fas fa-box"></i> Phần mềm</option>
+                            <option value="Khác"><i class="fas fa-thumbtack"></i> Khác</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <select id="issueStatus" class="form-select">
+                            <option value="Đã xử lý"><i class="fas fa-check-circle"></i> Đã xử lý</option>
+                            <option value="Đang xử lý"><i class="fas fa-clock"></i> Đang xử lý</option>
+                            <option value="Chưa xử lý"><i class="fas fa-times-circle"></i> Chưa xử lý</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <textarea id="issueFix" class="form-control" rows="2"
+                        placeholder="Cách sửa (VD: ipconfig /release + ipconfig /renew)"></textarea>
+                </div>
+                <div class="mb-3">
+                    <textarea id="issueNote" class="form-control" rows="2"
+                        placeholder="Ghi chú thêm (nguyên nhân, lưu ý...)"></textarea>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary" onclick="addIssue()"><i class="fas fa-save"></i> Lưu sự cố</button>
+                    <button class="btn btn-danger" onclick="clearAll()"><i class="fas fa-trash-alt"></i> Xóa tất
+                        cả</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TÌM KIẾM + LỌC + THỐNG KÊ -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title mb-3"><i class="fas fa-search text-success"></i><strong> Tra cứu & Thống kê</strong></h5>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-3">
+                        <input type="text" id="searchInput" class="form-control"
+                            placeholder="Tìm theo tiêu đề, cách sửa..." oninput="renderTable()">
+                    </div>
+                    <div class="col-md-3">
+                        <select id="filterCategory" class="form-select" onchange="renderTable()">
+                            <option value="all"><i class="fas fa-folder-open"></i> Tất cả danh mục</option>
+                            <option value="Mạng"><i class="fas fa-globe"></i> Mạng</option>
+                            <option value="Phần cứng"><i class="fas fa-desktop"></i> Phần cứng</option>
+                            <option value="Phần mềm"><i class="fas fa-box"></i> Phần mềm</option>
+                            <option value="Khác"><i class="fas fa-thumbtack"></i> Khác</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select id="filterStatus" class="form-select" onchange="renderTable()">
+                            <option value="all"><i class="fas fa-chart-bar"></i> Tất cả trạng thái</option>
+                            <option value="Đã xử lý"><i class="fas fa-check-circle"></i> Đã xử lý</option>
+                            <option value="Đang xử lý"><i class="fas fa-clock"></i> Đang xử lý</option>
+                            <option value="Chưa xử lý"><i class="fas fa-times-circle"></i> Chưa xử lý</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-success w-100" onclick="exportCSV()"><i class="fas fa-download"></i> Xuất
+                            CSV</button>
+                    </div>
+                </div>
+
+                <!-- Thống kê tổng -->
+                <div class="row g-2 mb-3" id="stats"></div>
+
+                <!-- Top lỗi thường gặp -->
+                <div class="border-top pt-3">
+                    <h6 class="mb-2"><i class="fas fa-fire text-danger"></i><strong> Lỗi thường gặp nhất</strong></h6>
+                    <div class="d-flex flex-wrap gap-2" id="topIssues"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BẢNG HIỂN THỊ - DESKTOP -->
+        <div class="card shadow-sm d-none d-md-block">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width:45px;">#</th>
+                            <th style="width:100px;">Ngày</th>
+                            <th>Tiêu đề</th>
+                            <th style="width:180px;">Cách sửa</th>
+                            <th style="width:120px;">Danh mục</th>
+                            <th style="width:110px;">Trạng thái</th>
+                            <th style="width:120px;">Sửa lúc</th>
+                            <th style="width:100px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4"><i class="fas fa-inbox"></i> Chưa có sự cố nào. Hãy thêm mới!</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- BẢNG HIỂN THỊ - MOBILE -->
+        <div class="d-md-none" id="mobileCards">
+            <div class="text-center text-muted py-4"><i class="fas fa-inbox"></i> Chưa có sự cố nào. Hãy thêm mới!</div>
+        </div>
+        <!-- FOOTER -->
+        <div class="text-center text-muted small py-3">
+            Designed by <strong>Nam Nguyễn</strong>
+        </div>
+    </div>
+    <!-- MODAL XÁC NHẬN -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-body text-center py-4">
+                    <div id="confirmIcon" class="mb-3"></div>
+                    <h5 id="confirmTitle" class="mb-2"></h5>
+                    <p id="confirmMessage" class="text-muted mb-0"></p>
+                </div>
+                <div class="modal-footer justify-content-center border-0 pt-0 pb-3">
+                    <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Hủy
+                    </button>
+                    <button type="button" class="btn px-3" id="confirmOkBtn">
+                        <i class="fas fa-check"></i> Xác nhận
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL THÔNG BÁO -->
+    <div class="modal fade" id="alertModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-body text-center py-4">
+                    <div id="alertIcon" class="mb-3"></div>
+                    <h5 id="alertTitle" class="mb-2"></h5>
+                    <p id="alertMessage" class="text-muted mb-0"></p>
+                </div>
+                <div class="modal-footer justify-content-center border-0 pt-0 pb-3">
+                    <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">
+                        <i class="fas fa-check"></i> OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CHỈNH SỬA -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-warning text-white">
+                    <h5 class="modal-title"><i class="fas fa-edit"></i> Chỉnh sửa sự cố</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Cách sửa</label>
+                        <textarea id="editFix" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Ghi chú</label>
+                        <textarea id="editNote" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Trạng thái</label>
+                        <select id="editStatus" class="form-select">
+                            <option value="Đã xử lý"><i class="fas fa-check-circle"></i> Đã xử lý</option>
+                            <option value="Đang xử lý"><i class="fas fa-clock"></i> Đang xử lý</option>
+                            <option value="Chưa xử lý"><i class="fas fa-times-circle"></i> Chưa xử lý</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Hủy
+                    </button>
+                    <button type="button" class="btn btn-warning" id="editSaveBtn">
+                        <i class="fas fa-save"></i> Lưu thay đổi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./CRUD.js"></script>
+    <script src="./helper.js"></script>
+</body>
+
+</html>
