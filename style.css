@@ -56,9 +56,9 @@ body {
 /* Điểm nhấn "signal": thanh 3px trên các card chính, gợi cảm giác
    panel vận hành hệ thống thay vì thẻ Bootstrap mặc định */
 .card {
-    border: 1px solid var(--border) !important;
-    border-radius: var(--radius) !important;
-    box-shadow: var(--shadow-card) !important;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
     background: var(--surface);
     position: relative;
     overflow: hidden;
@@ -77,6 +77,19 @@ body {
 
 #loginPage .card::before {
     background: var(--signal);
+}
+
+/* Các card lồng bên trong (4 ô thống kê, card mobile) không cần vệt trang trí
+   và không được ép border, để màu viền trái theo trạng thái (primary/success/
+   warning/danger) hiển thị đúng như thiết kế gốc */
+#stats .card::before,
+#mobileCards .card::before {
+    display: none;
+}
+
+#stats .card,
+#mobileCards .card {
+    overflow: visible;
 }
 
 .card-title {

@@ -37,10 +37,18 @@ function hideError() {
 onAuthChange(async (user) => {
     if (user) {
         userEmail.textContent = user.email || user.displayName;
-        showApp();
         document.getElementById('issueDate').value = new Date().toISOString().slice(0, 10);
-        await getData();
+        // Chờ tải xong dữ liệu (loadingOverlay vẫn đang hiện) rồi mới render
+        // + hiện appContent, để bảng/thống kê/top lỗi xuất hiện cùng một lúc.
+        // Bọc try/catch: nếu Firestore lỗi (mạng, rules...), vẫn phải hiện
+        // app ra chứ không được kẹt mãi ở màn hình loading.
+        try {
+            await getData();
+        } catch (err) {
+            console.error('Lỗi tải dữ liệu:', err);
+        }
         renderTable();
+        showApp();
     } else {
         showLogin();
     }

@@ -1,6 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
 import { getAuth, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+import {
+    initializeFirestore, persistentLocalCache, persistentSingleTabManager,
+    collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBShVj62lFy1b529gv9a-zQ5IWFpCY1oxo",
@@ -14,7 +17,13 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
+
+// Bật cache cục bộ (IndexedDB) cho Firestore: lần vào sau sẽ đọc từ cache
+// trên máy trước (rất nhanh), giảm cảm giác "chờ lâu" mỗi lần mở app.
+const db = initializeFirestore(app, {
+    localCache: persistentLocalCache({ tabManager: persistentSingleTabManager() })
+});
+
 const googleProvider = new GoogleAuthProvider();
 
 // ======================== AUTH ========================
