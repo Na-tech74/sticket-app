@@ -1,3 +1,5 @@
+import { getCachedData, showAlert } from './CRUD.js';
+
 // ======================== ESCAPE HTML ========================
 function escapeHtml(str) {
     if (!str) return '';
@@ -17,7 +19,7 @@ function formatDateTime(isoStr) {
 
 // ======================== LỌC DỮ LIỆU ========================
 function getFilteredData() {
-    const data = getData();
+    const data = getCachedData();
     const search = document.getElementById('searchInput').value.toLowerCase().trim();
     const filterCat = document.getElementById('filterCategory').value;
     const filterStatus = document.getElementById('filterStatus').value;
@@ -121,7 +123,7 @@ function renderTable() {
     }
 
     // ========== THỐNG KÊ ==========
-    const allData = getData();
+    const allData = getCachedData();
     const total = allData.length;
     const resolved = allData.filter(i => i.status === 'Đã xử lý').length;
     const pending = allData.filter(i => i.status === 'Đang xử lý').length;
@@ -178,8 +180,4 @@ function renderTable() {
     }
 }
 
-// ======================== LOAD ========================
-window.onload = function () {
-    document.getElementById('issueDate').value = new Date().toISOString().slice(0, 10);
-    renderTable();
-};
+export { renderTable, exportCSV };

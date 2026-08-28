@@ -1,10 +1,20 @@
-// ======================== DATA ========================
-function getData() {
-    const raw = localStorage.getItem('itIssues');
-    return raw ? JSON.parse(raw) : [];
+import {
+    firestoreGetData, firestoreAddIssue, firestoreUpdateIssue,
+    firestoreDeleteIssue, firestoreClearAll, getCurrentUser
+} from './firebase-config.js';
+
+// ======================== DATA (FIRESTORE) ========================
+let cachedData = [];
+
+async function getData() {
+    const user = getCurrentUser();
+    if (!user) return [];
+    cachedData = await firestoreGetData();
+    return cachedData;
 }
-function saveData(data) {
-    localStorage.setItem('itIssues', JSON.stringify(data));
+
+function getCachedData() {
+    return cachedData;
 }
 
 // ======================== MODAL HELPERS ========================
@@ -80,11 +90,10 @@ async function addIssue() {
         return;
     }
 
-    const data = getData();
-    data.push({ id: Date.now(), title, date, category, status, fix, note });
-    saveData(data);
+    const issue = { id: Date.now(), title, date, category, status, fix, note };
+    await firestoreAddIssue(issue);
     clearForm();
-    renderTable();
+    await refreshData();
 }
 
 function clearForm() {
@@ -105,8 +114,8 @@ async function clearAll() {
         'btn-danger'
     );
     if (!ok) return;
-    saveData([]);
-    renderTable();
+    await firestoreClearAll();
+    await refreshData();
 }
 
 // ======================== XÓA 1 LỖI ========================
@@ -118,16 +127,16 @@ async function deleteIssue(id) {
         'btn-danger'
     );
     if (!ok) return;
-    let data = getData();
-    data = data.filter(item => item.id !== id);
-    saveData(data);
-    renderTable();
+    const item = cachedData.find(i => i.id === id);
+    if (item && item.docId) {
+        await firestoreDeleteIssue(item.docId);
+    }
+    await refreshData();
 }
 
 // ======================== SỬA LỖI ========================
 async function editIssue(id) {
-    let data = getData();
-    const item = data.find(i => i.id === id);
+    const item = cachedData.find(i => i.id === id);
     if (!item) return;
 
     const result = await showEditModal(item);
@@ -140,6 +149,20 @@ async function editIssue(id) {
     }
     item.updatedAt = new Date().toISOString();
 
-    saveData(data);
-    renderTable();
+    if (item.docId) {
+        await firestoreUpdateIssue(item.docId, {
+            fix: item.fix,
+            note: item.note,
+            status: item.status,
+            updatedAt: item.updatedAt
+        });
+    }
+    await refreshData();
 }
+
+// ======================== REFRESH ========================
+async function refreshData() {
+    await getData();
+}
+
+export { getData, getCachedData, addIssue, clearAll, deleteIssue, editIssue, showConfirm, showAlert, showEditModal, refreshData };

@@ -11,136 +11,186 @@
 </head>
 
 <body class="bg-light">
-    <div class="container py-4" style="max-width:1200px;">
-        <!-- HEADER -->
-        <div class="text-center mb-4">
-            <h1 class="h3 fw-bold text-dark mb-1"><i class="fas fa-headset text-primary"></i> Sổ Tay Xử Lý Sự Cố IT</h1>
-            <p class="text-muted small mb-0">Sổ tay xử lý sự cố - Ghi chép, Tra cứu, Thống kê</p>
-        </div>
 
-        <!-- FORM NHẬP LỖI -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-body">
-                <h5 class="card-title mb-3"><i class="fas fa-plus-circle text-primary"></i> <strong>Ghi nhận sự cố mới</strong> </h5>
-                <div class="row g-2 mb-2">
-                    <div class="col-md-6">
-                        <input type="text" id="issueTitle" class="form-control"
-                            placeholder="Tiêu đề lỗi (VD: Mất wifi máy A)">
+    <!-- ===== LOGIN PAGE ===== -->
+    <div id="loginPage" class="d-flex align-items-center justify-content-center" style="min-height:100vh;">
+        <div class="card shadow-sm border-0" style="width:100%; max-width:400px;">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <i class="fas fa-headset text-primary" style="font-size:40px;"></i>
+                    <h4 class="fw-bold mt-2 mb-1">Sổ Tay Xử Lý Sự Cố IT</h4>
+                    <p class="text-muted small">Đăng nhập để sử dụng</p>
+                </div>
+
+                <button id="btnGoogleLogin" class="btn btn-outline-dark w-100 mb-3">
+                    <i class="fab fa-google me-2"></i> Đăng nhập bằng Google
+                </button>
+
+                <div class="divider text-center text-muted small mb-3">hoặc</div>
+
+                <form id="emailForm">
+                    <div class="mb-2">
+                        <input type="email" id="loginEmail" class="form-control" placeholder="Email">
                     </div>
-                    <div class="col-md-6">
-                        <input type="date" id="issueDate" class="form-control">
+                    <div class="mb-2">
+                        <input type="password" id="loginPassword" class="form-control" placeholder="Mật khẩu">
                     </div>
-                </div>
-                <div class="row g-2 mb-2">
-                    <div class="col-md-6">
-                        <select id="issueCategory" class="form-select">
-                            <option value="Mạng"><i class="fas fa-globe"></i> Mạng</option>
-                            <option value="Phần cứng"><i class="fas fa-desktop"></i> Phần cứng</option>
-                            <option value="Phần mềm"><i class="fas fa-box"></i> Phần mềm</option>
-                            <option value="Khác"><i class="fas fa-thumbtack"></i> Khác</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <select id="issueStatus" class="form-select">
-                            <option value="Đã xử lý"><i class="fas fa-check-circle"></i> Đã xử lý</option>
-                            <option value="Đang xử lý"><i class="fas fa-clock"></i> Đang xử lý</option>
-                            <option value="Chưa xử lý"><i class="fas fa-times-circle"></i> Chưa xử lý</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="mb-2">
-                    <textarea id="issueFix" class="form-control" rows="2"
-                        placeholder="Cách sửa (VD: ipconfig /release + ipconfig /renew)"></textarea>
-                </div>
-                <div class="mb-3">
-                    <textarea id="issueNote" class="form-control" rows="2"
-                        placeholder="Ghi chú thêm (nguyên nhân, lưu ý...)"></textarea>
-                </div>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-primary" onclick="addIssue()"><i class="fas fa-save"></i> Lưu sự cố</button>
-                    <button class="btn btn-danger" onclick="clearAll()"><i class="fas fa-trash-alt"></i> Xóa tất
-                        cả</button>
-                </div>
+                    <button type="submit" id="btnEmailLogin" class="btn btn-primary w-100 mb-2">
+                        <i class="fas fa-sign-in-alt me-1"></i> Đăng nhập
+                    </button>
+                    <button type="button" id="btnEmailRegister" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-user-plus me-1"></i> Tạo tài khoản mới
+                    </button>
+                </form>
+
+                <div id="loginError" class="text-danger small text-center mt-3 d-none"></div>
             </div>
-        </div>
-
-        <!-- TÌM KIẾM + LỌC + THỐNG KÊ -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-body">
-                <h5 class="card-title mb-3"><i class="fas fa-search text-success"></i><strong> Tra cứu & Thống kê</strong></h5>
-                <div class="row g-2 mb-3">
-                    <div class="col-md-3">
-                        <input type="text" id="searchInput" class="form-control"
-                            placeholder="Tìm theo tiêu đề, cách sửa..." oninput="renderTable()">
-                    </div>
-                    <div class="col-md-3">
-                        <select id="filterCategory" class="form-select" onchange="renderTable()">
-                            <option value="all"><i class="fas fa-folder-open"></i> Tất cả danh mục</option>
-                            <option value="Mạng"><i class="fas fa-globe"></i> Mạng</option>
-                            <option value="Phần cứng"><i class="fas fa-desktop"></i> Phần cứng</option>
-                            <option value="Phần mềm"><i class="fas fa-box"></i> Phần mềm</option>
-                            <option value="Khác"><i class="fas fa-thumbtack"></i> Khác</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <select id="filterStatus" class="form-select" onchange="renderTable()">
-                            <option value="all"><i class="fas fa-chart-bar"></i> Tất cả trạng thái</option>
-                            <option value="Đã xử lý"><i class="fas fa-check-circle"></i> Đã xử lý</option>
-                            <option value="Đang xử lý"><i class="fas fa-clock"></i> Đang xử lý</option>
-                            <option value="Chưa xử lý"><i class="fas fa-times-circle"></i> Chưa xử lý</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <button class="btn btn-success w-100" onclick="exportCSV()"><i class="fas fa-download"></i> Xuất
-                            CSV</button>
-                    </div>
-                </div>
-
-                <!-- Thống kê tổng -->
-                <div class="row g-2 mb-3" id="stats"></div>
-
-                <!-- Top lỗi thường gặp -->
-                <div class="border-top pt-3">
-                    <h6 class="mb-2"><i class="fas fa-fire text-danger"></i><strong> Lỗi thường gặp nhất</strong></h6>
-                    <div class="d-flex flex-wrap gap-2" id="topIssues"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- BẢNG HIỂN THỊ - DESKTOP -->
-        <div class="card shadow-sm d-none d-md-block">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-dark">
-                        <tr>
-                            <th style="width:45px;">#</th>
-                            <th style="width:100px;">Ngày</th>
-                            <th>Tiêu đề</th>
-                            <th style="width:180px;">Cách sửa</th>
-                            <th style="width:120px;">Danh mục</th>
-                            <th style="width:110px;">Trạng thái</th>
-                            <th style="width:120px;">Sửa lúc</th>
-                            <th style="width:100px;">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        <tr>
-                            <td colspan="8" class="text-center text-muted py-4"><i class="fas fa-inbox"></i> Chưa có sự cố nào. Hãy thêm mới!</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- BẢNG HIỂN THỊ - MOBILE -->
-        <div class="d-md-none" id="mobileCards">
-            <div class="text-center text-muted py-4"><i class="fas fa-inbox"></i> Chưa có sự cố nào. Hãy thêm mới!</div>
-        </div>
-        <!-- FOOTER -->
-        <div class="text-center text-muted small py-3">
-            Designed by <strong>Nam Nguyễn</strong>
         </div>
     </div>
+
+    <!-- ===== MAIN APP ===== -->
+    <div id="appContent" class="d-none">
+        <div class="container py-4" style="max-width:1200px;">
+            <!-- HEADER + USER MENU -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="text-center flex-grow-1">
+                    <h1 class="h3 fw-bold text-dark mb-1"><i class="fas fa-headset text-primary"></i> Sổ Tay Xử Lý Sự Cố IT</h1>
+                    <p class="text-muted small mb-0">Sổ tay xử lý sự cố - Ghi chép, Tra cứu, Thống kê</p>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle"></i> <span id="userEmail"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#" id="btnLogout"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- FORM NHẬP LỖI -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3"><i class="fas fa-plus-circle text-primary"></i> <strong>Ghi nhận sự cố mới</strong></h5>
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <input type="text" id="issueTitle" class="form-control" placeholder="Tiêu đề lỗi (VD: Mất wifi máy A)">
+                        </div>
+                        <div class="col-md-6">
+                            <input type="date" id="issueDate" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <select id="issueCategory" class="form-select">
+                                <option value="Mạng"><i class="fas fa-globe"></i> Mạng</option>
+                                <option value="Phần cứng"><i class="fas fa-desktop"></i> Phần cứng</option>
+                                <option value="Phần mềm"><i class="fas fa-box"></i> Phần mềm</option>
+                                <option value="Khác"><i class="fas fa-thumbtack"></i> Khác</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <select id="issueStatus" class="form-select">
+                                <option value="Đã xử lý"><i class="fas fa-check-circle"></i> Đã xử lý</option>
+                                <option value="Đang xử lý"><i class="fas fa-clock"></i> Đang xử lý</option>
+                                <option value="Chưa xử lý"><i class="fas fa-times-circle"></i> Chưa xử lý</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <textarea id="issueFix" class="form-control" rows="2" placeholder="Cách sửa (VD: ipconfig /release + ipconfig /renew)"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <textarea id="issueNote" class="form-control" rows="2" placeholder="Ghi chú thêm (nguyên nhân, lưu ý...)"></textarea>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" onclick="addIssue()"><i class="fas fa-save"></i> Lưu sự cố</button>
+                        <button class="btn btn-danger" onclick="clearAll()"><i class="fas fa-trash-alt"></i> Xóa tất cả</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TÌM KIẾM + LỌC + THỐNG KÊ -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3"><i class="fas fa-search text-success"></i> <strong>Tra cứu & Thống kê</strong></h5>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-3">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Tìm theo tiêu đề, cách sửa..." oninput="renderTable()">
+                        </div>
+                        <div class="col-md-3">
+                            <select id="filterCategory" class="form-select" onchange="renderTable()">
+                                <option value="all"><i class="fas fa-folder-open"></i> Tất cả danh mục</option>
+                                <option value="Mạng"><i class="fas fa-globe"></i> Mạng</option>
+                                <option value="Phần cứng"><i class="fas fa-desktop"></i> Phần cứng</option>
+                                <option value="Phần mềm"><i class="fas fa-box"></i> Phần mềm</option>
+                                <option value="Khác"><i class="fas fa-thumbtack"></i> Khác</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select id="filterStatus" class="form-select" onchange="renderTable()">
+                                <option value="all"><i class="fas fa-chart-bar"></i> Tất cả trạng thái</option>
+                                <option value="Đã xử lý"><i class="fas fa-check-circle"></i> Đã xử lý</option>
+                                <option value="Đang xử lý"><i class="fas fa-clock"></i> Đang xử lý</option>
+                                <option value="Chưa xử lý"><i class="fas fa-times-circle"></i> Chưa xử lý</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-success w-100" onclick="exportCSV()"><i class="fas fa-download"></i> Xuất CSV</button>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3" id="stats"></div>
+                    <div class="border-top pt-3">
+                        <h6 class="mb-2"><i class="fas fa-fire text-danger"></i> <strong>Lỗi thường gặp nhất</strong></h6>
+                        <div class="d-flex flex-wrap gap-2" id="topIssues"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BẢNG HIỂN THỊ - DESKTOP -->
+            <div class="card shadow-sm d-none d-md-block">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th style="width:45px;">#</th>
+                                <th style="width:100px;">Ngày</th>
+                                <th>Tiêu đề</th>
+                                <th style="width:180px;">Cách sửa</th>
+                                <th style="width:120px;">Danh mục</th>
+                                <th style="width:110px;">Trạng thái</th>
+                                <th style="width:120px;">Sửa lúc</th>
+                                <th style="width:100px;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-4"><i class="fas fa-inbox"></i> Chưa có sự cố nào. Hãy thêm mới!</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- BẢNG HIỂN THỊ - MOBILE -->
+            <div class="d-md-none" id="mobileCards">
+                <div class="text-center text-muted py-4"><i class="fas fa-inbox"></i> Chưa có sự cố nào. Hãy thêm mới!</div>
+            </div>
+
+            <!-- FOOTER -->
+            <div class="text-center text-muted small py-3">
+                Designed by <strong>Nam Nguyễn</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOADING OVERLAY -->
+    <div id="loadingOverlay" class="d-flex align-items-center justify-content-center" style="min-height:100vh;">
+        <div class="text-center">
+            <div class="spinner-border text-primary mb-2" role="status"></div>
+            <p class="text-muted small">Đang tải...</p>
+        </div>
+    </div>
+
     <!-- MODAL XÁC NHẬN -->
     <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -217,9 +267,9 @@
             </div>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="./CRUD.js"></script>
-    <script src="./helper.js"></script>
+    <script type="module" src="./app.js"></script>
 </body>
 
 </html>
