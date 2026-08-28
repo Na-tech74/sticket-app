@@ -106,7 +106,7 @@ async function addIssue() {
         return;
     }
 
-    const issue = { id: Date.now(), title, date, category, status, fix, note };
+    const issue = { id: Date.now(), title, date, category, status, fix, note, updatedAt: new Date().toISOString() };
     clearForm();
 
     // Không await, không tự thêm vào cachedData: Firestore (cache cục bộ đã

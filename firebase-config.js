@@ -1,8 +1,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
-import { getAuth, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import { 
+    getAuth, signInWithPopup, signInWithEmailAndPassword, 
+    createUserWithEmailAndPassword, signOut, GoogleAuthProvider, 
+    onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import {
-    initializeFirestore, persistentLocalCache, persistentSingleTabManager,
-    collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot
+    getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, 
+    doc, query, orderBy, onSnapshot 
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -17,12 +21,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-
-// Bật cache cục bộ (IndexedDB) cho Firestore: lần vào sau sẽ đọc từ cache
-// trên máy trước (rất nhanh), giảm cảm giác "chờ lâu" mỗi lần mở app.
-const db = initializeFirestore(app, {
-    localCache: persistentLocalCache({ tabManager: persistentSingleTabManager() })
-});
+const db = getFirestore(app); // 👈 SỬA: dùng getFirestore thay vì initializeFirestore
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -66,42 +65,60 @@ async function firestoreGetData() {
     return snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
 }
 
-// Lắng nghe real-time thay vì tải 1 lần: onSnapshot echo ngay dữ liệu có
-// sẵn trong cache cục bộ (gần như tức thì), rồi tự cập nhật tiếp khi server
-// xác nhận — và cũng tự hiện ngay các thao tác thêm/sửa/xóa đang chờ ghi
-// (pending writes), không cần optimistic update thủ công nữa.
-// Trả về hàm unsubscribe để hủy lắng nghe khi đăng xuất.
+// 👈 SỬA: Thêm try-catch để bắt lỗi listener
 function subscribeIssues(onData, onError) {
     const ref = getUserIssuesRef();
     if (!ref) {
         onData([]);
         return () => {};
     }
-    const q = query(ref, orderBy('id', 'desc'));
-    return onSnapshot(q, snapshot => {
-        const data = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
-        onData(data);
-    }, err => {
+    try {
+        const q = query(ref, orderBy('id', 'desc'));
+        return onSnapshot(q, snapshot => {
+            const data = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
+            onData(data);
+        }, err => {
+            console.warn('Firestore listener error:', err);
+            if (onError) onError(err);
+        });
+    } catch (err) {
+        console.error('Failed to subscribe:', err);
         if (onError) onError(err);
-    });
+        return () => {};
+    }
 }
 
 async function firestoreAddIssue(issue) {
     const ref = getUserIssuesRef();
     if (!ref) return null;
-    return await addDoc(ref, issue);
+    try {
+        return await addDoc(ref, issue);
+    } catch (err) {
+        console.error('Add issue error:', err);
+        throw err;
+    }
 }
 
 async function firestoreUpdateIssue(docId, data) {
     const ref = getUserIssuesRef();
     if (!ref) return;
-    await updateDoc(doc(ref, docId), data);
+    try {
+        await updateDoc(doc(ref, docId), data);
+    } catch (err) {
+        console.error('Update issue error:', err);
+        throw err;
+    }
 }
 
 async function firestoreDeleteIssue(docId) {
     const ref = getUserIssuesRef();
     if (!ref) return;
-    await deleteDoc(doc(ref, docId));
+    try {
+        await deleteDoc(doc(ref, docId));
+    } catch (err) {
+        console.error('Delete issue error:', err);
+        throw err;
+    }
 }
 
 async function firestoreClearAll() {
@@ -113,6 +130,8 @@ async function firestoreClearAll() {
 }
 
 export {
-    loginWithGoogle, loginWithEmail, registerWithEmail, logout, onAuthChange, getCurrentUser,
-    firestoreGetData, subscribeIssues, firestoreAddIssue, firestoreUpdateIssue, firestoreDeleteIssue, firestoreClearAll
+    loginWithGoogle, loginWithEmail, registerWithEmail, logout, 
+    onAuthChange, getCurrentUser,
+    firestoreGetData, subscribeIssues, firestoreAddIssue, 
+    firestoreUpdateIssue, firestoreDeleteIssue, firestoreClearAll
 };

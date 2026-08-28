@@ -3,7 +3,7 @@ import {
     logout, onAuthChange
 } from './firebase-config.js';
 import { startListening, stopListening, addIssue, clearAll, deleteIssue, editIssue } from './CRUD.js';
-import { renderTable, exportCSV, showLoadingState } from './helper.js';
+import { renderTable,renderStats, exportCSV } from './helper.js';
 
 // ======================== DOM ========================
 const loginPage = document.getElementById('loginPage');
@@ -38,11 +38,9 @@ onAuthChange((user) => {
     if (user) {
         userEmail.textContent = user.email || user.displayName;
         document.getElementById('issueDate').value = new Date().toISOString().slice(0, 10);
-        showApp(); // hiện app ngay — không đợi dữ liệu
-        showLoadingState(); // khu thống kê/bảng hiện spinner cho tới khi listener bắn dữ liệu đầu tiên
-
-        // Lắng nghe real-time: renderTable() tự chạy lại mỗi khi có dữ liệu
-        // mới (kể cả gần như tức thì từ cache cục bộ / thao tác đang chờ ghi).
+        showApp();
+        // Gọi renderStats() ngay sau khi hiện app
+        renderStats();
         startListening(() => renderTable());
     } else {
         stopListening();
@@ -56,6 +54,7 @@ document.getElementById('btnGoogleLogin').addEventListener('click', async () => 
     try {
         await loginWithGoogle();
     } catch (err) {
+        console.error('Google login error:', err);
         showError('Đăng nhập Google thất bại: ' + err.message);
     }
 });
@@ -72,6 +71,7 @@ document.getElementById('emailForm').addEventListener('submit', async (e) => {
     try {
         await loginWithEmail(email, password);
     } catch (err) {
+        console.error('Email login error:', err);
         showError('Đăng nhập thất bại: ' + err.message);
     }
 });
@@ -91,6 +91,7 @@ document.getElementById('btnEmailRegister').addEventListener('click', async () =
     try {
         await registerWithEmail(email, password);
     } catch (err) {
+        console.error('Register error:', err);
         showError('Tạo tài khoản thất bại: ' + err.message);
     }
 });
@@ -101,7 +102,6 @@ document.getElementById('btnLogout').addEventListener('click', async (e) => {
 });
 
 // ======================== GLOBAL FUNCTIONS (for onclick) ========================
-// Không cần await/gọi renderTable() thủ công nữa — listener real-time tự lo.
 window.addIssue = () => { addIssue(); };
 window.clearAll = () => { clearAll(); };
 window.deleteIssue = (id) => { deleteIssue(id); };

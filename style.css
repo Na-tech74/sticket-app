@@ -26,7 +26,7 @@
 
     --danger: #D3453F;
     --danger-soft: #FBE7E5;
-    --warning: #C6791B;
+    --warning: #f2d80fea;
     --warning-soft: #FBEcD9;
     --success: #1E8A5A;
     --success-soft: #E1F5EA;
@@ -542,4 +542,47 @@ button:focus-visible,
     .modal-body i[style*="font-size:48px"] {
         font-size: 36px !important;
     }
+}
+/* ===== THÊM BỔ SUNG ===== */
+
+/* Loading overlay */
+#loadingOverlay {
+    background: var(--bg);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    transition: opacity .3s ease;
+}
+#loadingOverlay.d-none {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Modal xác nhận */
+#confirmOkBtn {
+    background: var(--signal);
+    border-color: var(--signal);
+    color: #fff;
+}
+#confirmOkBtn:hover {
+    background: var(--signal-dark);
+    border-color: var(--signal-dark);
+}
+
+/* Hover badge */
+.issue-badge:hover {
+    background: var(--signal-soft);
+    border-color: var(--signal);
+    transform: translateY(-1px);
+    transition: all .15s ease;
+}
+
+/* Nút edit trên mobile */
+#mobileCards .btn-warning,
+#mobileCards .btn-danger {
+    padding: 2px 8px;
+    font-size: 12px;
 }
