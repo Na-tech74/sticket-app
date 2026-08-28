@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/fireba
 import { getAuth, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import {
     initializeFirestore, persistentLocalCache, persistentSingleTabManager,
-    collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy
+    collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -66,10 +66,30 @@ async function firestoreGetData() {
     return snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
 }
 
+// Lắng nghe real-time thay vì tải 1 lần: onSnapshot echo ngay dữ liệu có
+// sẵn trong cache cục bộ (gần như tức thì), rồi tự cập nhật tiếp khi server
+// xác nhận — và cũng tự hiện ngay các thao tác thêm/sửa/xóa đang chờ ghi
+// (pending writes), không cần optimistic update thủ công nữa.
+// Trả về hàm unsubscribe để hủy lắng nghe khi đăng xuất.
+function subscribeIssues(onData, onError) {
+    const ref = getUserIssuesRef();
+    if (!ref) {
+        onData([]);
+        return () => {};
+    }
+    const q = query(ref, orderBy('id', 'desc'));
+    return onSnapshot(q, snapshot => {
+        const data = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
+        onData(data);
+    }, err => {
+        if (onError) onError(err);
+    });
+}
+
 async function firestoreAddIssue(issue) {
     const ref = getUserIssuesRef();
-    if (!ref) return;
-    await addDoc(ref, issue);
+    if (!ref) return null;
+    return await addDoc(ref, issue);
 }
 
 async function firestoreUpdateIssue(docId, data) {
@@ -94,5 +114,5 @@ async function firestoreClearAll() {
 
 export {
     loginWithGoogle, loginWithEmail, registerWithEmail, logout, onAuthChange, getCurrentUser,
-    firestoreGetData, firestoreAddIssue, firestoreUpdateIssue, firestoreDeleteIssue, firestoreClearAll
+    firestoreGetData, subscribeIssues, firestoreAddIssue, firestoreUpdateIssue, firestoreDeleteIssue, firestoreClearAll
 };

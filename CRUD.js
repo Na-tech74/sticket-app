@@ -1,16 +1,32 @@
 import {
-    firestoreGetData, firestoreAddIssue, firestoreUpdateIssue,
-    firestoreDeleteIssue, firestoreClearAll, getCurrentUser
+    subscribeIssues, firestoreAddIssue, firestoreUpdateIssue,
+    firestoreDeleteIssue, firestoreClearAll
 } from './firebase-config.js';
 
-// ======================== DATA (FIRESTORE) ========================
+// ======================== DATA (FIRESTORE REAL-TIME) ========================
 let cachedData = [];
+let unsubscribe = null;
 
-async function getData() {
-    const user = getCurrentUser();
-    if (!user) return [];
-    cachedData = await firestoreGetData();
-    return cachedData;
+// Bắt đầu lắng nghe dữ liệu real-time. onUpdate() được gọi mỗi khi có thay
+// đổi (kể cả thay đổi đang chờ ghi lên server) — dùng để trigger renderTable().
+function startListening(onUpdate) {
+    stopListening();
+    unsubscribe = subscribeIssues(
+        data => { cachedData = data; onUpdate(); },
+        err => {
+            console.error('Lỗi lắng nghe dữ liệu:', err);
+            cachedData = [];
+            onUpdate();
+        }
+    );
+}
+
+function stopListening() {
+    if (unsubscribe) {
+        unsubscribe();
+        unsubscribe = null;
+    }
+    cachedData = [];
 }
 
 function getCachedData() {
@@ -91,9 +107,15 @@ async function addIssue() {
     }
 
     const issue = { id: Date.now(), title, date, category, status, fix, note };
-    await firestoreAddIssue(issue);
     clearForm();
-    await refreshData();
+
+    // Không await, không tự thêm vào cachedData: Firestore (cache cục bộ đã
+    // bật) sẽ tự "echo" ngay thao tác này qua listener onSnapshot gần như
+    // tức thì, trước cả khi server xác nhận.
+    firestoreAddIssue(issue).catch(err => {
+        console.error('Lỗi lưu sự cố:', err);
+        showAlert('Lưu thất bại', 'Không thể lưu sự cố lên máy chủ (kiểm tra mạng). Vui lòng thử lại.', '<i class="fas fa-exclamation-triangle text-danger" style="font-size:48px"></i>');
+    });
 }
 
 function clearForm() {
@@ -114,8 +136,10 @@ async function clearAll() {
         'btn-danger'
     );
     if (!ok) return;
-    await firestoreClearAll();
-    await refreshData();
+    firestoreClearAll().catch(err => {
+        console.error('Lỗi xóa tất cả:', err);
+        showAlert('Xóa thất bại', 'Không thể xóa dữ liệu trên máy chủ (kiểm tra mạng). Vui lòng thử lại.', '<i class="fas fa-exclamation-triangle text-danger" style="font-size:48px"></i>');
+    });
 }
 
 // ======================== XÓA 1 LỖI ========================
@@ -129,9 +153,11 @@ async function deleteIssue(id) {
     if (!ok) return;
     const item = cachedData.find(i => i.id === id);
     if (item && item.docId) {
-        await firestoreDeleteIssue(item.docId);
+        firestoreDeleteIssue(item.docId).catch(err => {
+            console.error('Lỗi xóa sự cố:', err);
+            showAlert('Xóa thất bại', 'Không thể xóa sự cố trên máy chủ (kiểm tra mạng). Vui lòng thử lại.', '<i class="fas fa-exclamation-triangle text-danger" style="font-size:48px"></i>');
+        });
     }
-    await refreshData();
 }
 
 // ======================== SỬA LỖI ========================
@@ -142,27 +168,21 @@ async function editIssue(id) {
     const result = await showEditModal(item);
     if (!result) return;
 
-    if (result.fix !== '') item.fix = result.fix;
-    item.note = result.note;
-    if (['Đã xử lý', 'Đang xử lý', 'Chưa xử lý'].includes(result.status)) {
-        item.status = result.status;
-    }
-    item.updatedAt = new Date().toISOString();
+    const fix = result.fix !== '' ? result.fix : item.fix;
+    const note = result.note;
+    const status = ['Đã xử lý', 'Đang xử lý', 'Chưa xử lý'].includes(result.status) ? result.status : item.status;
+    const updatedAt = new Date().toISOString();
 
     if (item.docId) {
-        await firestoreUpdateIssue(item.docId, {
-            fix: item.fix,
-            note: item.note,
-            status: item.status,
-            updatedAt: item.updatedAt
+        firestoreUpdateIssue(item.docId, { fix, note, status, updatedAt }).catch(err => {
+            console.error('Lỗi cập nhật sự cố:', err);
+            showAlert('Cập nhật thất bại', 'Không thể lưu thay đổi lên máy chủ (kiểm tra mạng). Vui lòng thử lại.', '<i class="fas fa-exclamation-triangle text-danger" style="font-size:48px"></i>');
         });
     }
-    await refreshData();
 }
 
-// ======================== REFRESH ========================
-async function refreshData() {
-    await getData();
-}
-
-export { getData, getCachedData, addIssue, clearAll, deleteIssue, editIssue, showConfirm, showAlert, showEditModal, refreshData };
+export {
+    startListening, stopListening, getCachedData,
+    addIssue, clearAll, deleteIssue, editIssue,
+    showConfirm, showAlert, showEditModal
+};

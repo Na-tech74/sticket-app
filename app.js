@@ -2,8 +2,8 @@ import {
     loginWithGoogle, loginWithEmail, registerWithEmail,
     logout, onAuthChange
 } from './firebase-config.js';
-import { getData, refreshData, addIssue, clearAll, deleteIssue, editIssue } from './CRUD.js';
-import { renderTable, exportCSV } from './helper.js';
+import { startListening, stopListening, addIssue, clearAll, deleteIssue, editIssue } from './CRUD.js';
+import { renderTable, exportCSV, showLoadingState } from './helper.js';
 
 // ======================== DOM ========================
 const loginPage = document.getElementById('loginPage');
@@ -34,22 +34,18 @@ function hideError() {
 }
 
 // ======================== AUTH STATE ========================
-onAuthChange(async (user) => {
+onAuthChange((user) => {
     if (user) {
         userEmail.textContent = user.email || user.displayName;
         document.getElementById('issueDate').value = new Date().toISOString().slice(0, 10);
-        // Chờ tải xong dữ liệu (loadingOverlay vẫn đang hiện) rồi mới render
-        // + hiện appContent, để bảng/thống kê/top lỗi xuất hiện cùng một lúc.
-        // Bọc try/catch: nếu Firestore lỗi (mạng, rules...), vẫn phải hiện
-        // app ra chứ không được kẹt mãi ở màn hình loading.
-        try {
-            await getData();
-        } catch (err) {
-            console.error('Lỗi tải dữ liệu:', err);
-        }
-        renderTable();
-        showApp();
+        showApp(); // hiện app ngay — không đợi dữ liệu
+        showLoadingState(); // khu thống kê/bảng hiện spinner cho tới khi listener bắn dữ liệu đầu tiên
+
+        // Lắng nghe real-time: renderTable() tự chạy lại mỗi khi có dữ liệu
+        // mới (kể cả gần như tức thì từ cache cục bộ / thao tác đang chờ ghi).
+        startListening(() => renderTable());
     } else {
+        stopListening();
         showLogin();
     }
 });
@@ -105,9 +101,10 @@ document.getElementById('btnLogout').addEventListener('click', async (e) => {
 });
 
 // ======================== GLOBAL FUNCTIONS (for onclick) ========================
-window.addIssue = async () => { await addIssue(); renderTable(); };
-window.clearAll = async () => { await clearAll(); renderTable(); };
-window.deleteIssue = async (id) => { await deleteIssue(id); renderTable(); };
-window.editIssue = async (id) => { await editIssue(id); renderTable(); };
+// Không cần await/gọi renderTable() thủ công nữa — listener real-time tự lo.
+window.addIssue = () => { addIssue(); };
+window.clearAll = () => { clearAll(); };
+window.deleteIssue = (id) => { deleteIssue(id); };
+window.editIssue = (id) => { editIssue(id); };
 window.renderTable = renderTable;
 window.exportCSV = exportCSV;
