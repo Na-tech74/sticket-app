@@ -26,7 +26,7 @@
 
     --danger: #D3453F;
     --danger-soft: #FBE7E5;
-    --warning: #f2d80fea;
+    --warning: #f2d80f;
     --warning-soft: #FBEcD9;
     --success: #1E8A5A;
     --success-soft: #E1F5EA;
@@ -102,7 +102,111 @@ body {
     margin-right: 2px;
 }
 
-/* ===== Header ===== */
+/* ===== Top Navbar ===== */
+.top-navbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+.top-navbar-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+}
+
+.top-navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink);
+}
+
+.top-navbar-brand i {
+    color: var(--signal);
+    font-size: 22px;
+}
+
+.top-navbar-title {
+    display: block;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.top-navbar-subtitle {
+    display: block;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--ink-muted);
+    line-height: 1.2;
+}
+
+.top-navbar-user {
+    position: relative;
+}
+
+.top-navbar-avatar {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--ink);
+    padding: 4px 8px;
+    border-radius: 999px;
+    transition: background .15s;
+}
+
+.top-navbar-avatar::before,
+.top-navbar-avatar::after {
+    display: none !important;
+}
+
+.top-navbar-avatar:hover {
+    background: var(--surface-alt);
+    color: var(--ink);
+}
+
+.top-navbar-avatar-img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.top-navbar-avatar-icon {
+    font-size: 30px;
+    color: var(--ink-muted);
+    line-height: 1;
+}
+
+.top-navbar-name {
+    font-size: 13px;
+    font-weight: 500;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+    .top-navbar-name {
+        display: none;
+    }
+
+    .top-navbar-title {
+        font-size: 14px;
+    }
+
+    .top-navbar-subtitle {
+        font-size: 10px;
+    }
+}
 h1.h3 {
     font-weight: 800;
     letter-spacing: -0.02em;
@@ -346,7 +450,7 @@ textarea.form-control::placeholder {
     height: 6px;
     border-radius: 50%;
     background: currentColor;
-    box-shadow: 0 0 0 3px currentColor22;
+    box-shadow: 0 0 0 3px currentColor;
 }
 
 /* ===== Top issues badge ===== */
@@ -454,6 +558,11 @@ textarea.form-control::placeholder {
 .dropdown-item:hover {
     background: var(--signal-soft);
     color: var(--signal-dark);
+}
+
+#btnLogout:hover {
+    background: transparent;
+    color: var(--danger);
 }
 
 /* ===== Loading spinner ===== */

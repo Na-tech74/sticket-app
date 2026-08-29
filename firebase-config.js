@@ -21,7 +21,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app); // 👈 SỬA: dùng getFirestore thay vì initializeFirestore
+const db = getFirestore(app); // dùng getFirestore 
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -65,7 +65,7 @@ async function firestoreGetData() {
     return snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
 }
 
-// 👈 SỬA: Thêm try-catch để bắt lỗi listener
+// try-catch để bắt lỗi listener
 function subscribeIssues(onData, onError) {
     const ref = getUserIssuesRef();
     if (!ref) {

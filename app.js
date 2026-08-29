@@ -9,7 +9,9 @@ import { renderTable,renderStats, exportCSV } from './helper.js';
 const loginPage = document.getElementById('loginPage');
 const appContent = document.getElementById('appContent');
 const loadingOverlay = document.getElementById('loadingOverlay');
-const userEmail = document.getElementById('userEmail');
+const userAvatar = document.getElementById('userAvatar');
+const userAvatarFallback = document.getElementById('userAvatarFallback');
+const userDisplayName = document.getElementById('userDisplayName');
 const loginError = document.getElementById('loginError');
 
 function showLogin() {
@@ -36,7 +38,15 @@ function hideError() {
 // ======================== AUTH STATE ========================
 onAuthChange((user) => {
     if (user) {
-        userEmail.textContent = user.email || user.displayName;
+        if (user.photoURL) {
+            userAvatar.src = user.photoURL;
+            userAvatar.classList.remove('d-none');
+            userAvatarFallback.classList.add('d-none');
+        } else {
+            userAvatar.classList.add('d-none');
+            userAvatarFallback.classList.remove('d-none');
+        }
+        userDisplayName.textContent = user.displayName || user.email;
         document.getElementById('issueDate').value = new Date().toISOString().slice(0, 10);
         showApp();
         // Gọi renderStats() ngay sau khi hiện app
